@@ -10,7 +10,7 @@ namespace Bacteriophage
     public class TerraignChunk
     {
         private int _height = 5;
-        private float _bacteriaHeight = 0;
+        private ulong _bacteriaHeight = 0;
 
         public int GroundHeight
         {
@@ -18,30 +18,31 @@ namespace Bacteriophage
             set { _height = MathUtil.Clamp(value, GlobalConstants.MinTerraignHeight, GlobalConstants.MaxTerraignHeight); }
         }
 
-        public float BacteriaHeight
+        public ulong BacteriaHeight
         {
             get { return _bacteriaHeight; }
             private set
             {
                 if (value < GlobalConstants.MinBacteriaDraw)
-                    _bacteriaHeight = 0f;
+                    _bacteriaHeight = 0;
                 else
-                    _bacteriaHeight = (float)MathUtil.Clamp(value, 0, GlobalConstants.MaxWorldHeight - _height);
+                    _bacteriaHeight = value;
+                    //_bacteriaHeight = MathUtil.Clamp(value, 0, GlobalConstants.MaxWorldHeight - _height);
             }
         }
 
         public bool HadBacteria { get; set; }
 
-        public float BufferBacteriaHeight { get; set; }
-        public float TotalHeight { get { return _height + _bacteriaHeight; } }
-        public float TotalWithBuffer { get { return TotalHeight + BufferBacteriaHeight; } }
+        public ulong BufferBacteriaHeight { get; set; }
+        public ulong TotalHeight { get { return Convert.ToUInt64(_height) + _bacteriaHeight; } }
+        public ulong TotalWithBuffer { get { return TotalHeight + BufferBacteriaHeight; } }
 
         public void FlushBuffer()
         {
             if (BufferBacteriaHeight != 0)
             {
                 HadBacteria = true;
-                BacteriaHeight = BufferBacteriaHeight;
+                BacteriaHeight += BufferBacteriaHeight;
                 BufferBacteriaHeight = 0;
             }
         }

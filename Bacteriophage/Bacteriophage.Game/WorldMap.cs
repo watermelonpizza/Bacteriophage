@@ -22,10 +22,13 @@ namespace Bacteriophage
         public const int MinTerraignHeight = 1;
         public const int MaxWorldHeight = 10;
         public const int MinWorldHeight = 0;
-        public const float MinBacteriaFlow = 0.2f;
+        public const float MinBacteriaFlow = 0.0f;
         public const float MinBacteriaDraw = 0.05f;
         public const float MaxBacteriaFlowBack = 0.08f;
+        public const float BacteriaFlowAmountPerTick = 0.05f;
         public const float BacteriaJumpUpTheshold = 0.08f;
+        public const ulong MaxBacteria = 100000000;
+        public const int BacteriaPercentFlowAmountPerTick = 18;
         public const int BacteriaDumpKeepPercent = 5;
         public const int BacteriaSuckPercent = 5;
     }
@@ -44,8 +47,8 @@ namespace Bacteriophage
         public bool stepForward = false;
         public int stepCount = 0;
 
-        public float totalSpawnedBacteria = 0;
-        public float totalBacteria = 0;
+        public ulong totalSpawnedBacteria = 0;
+        public ulong totalBacteria = 0;
 
         private double _terraignFlatness = 1;
         private int _terraignStepDetail = 1;
@@ -172,7 +175,7 @@ namespace Bacteriophage
 
             if (run && (Game.PlayTime.TotalTime - timeSinceLastSpawn).TotalMilliseconds > spawnTickDelay)
             {
-                Grid[0, 0].TerraignInfo.BufferBacteriaHeight = 10;
+                Grid[0, 0].TerraignInfo.BufferBacteriaHeight = GlobalConstants.MaxBacteria;
                 Grid[0, 0].TerraignInfo.FlushBuffer();
                 totalSpawnedBacteria += Grid[0, 0].TerraignInfo.BacteriaHeight;
                 timeSinceLastSpawn = Game.PlayTime.TotalTime;
@@ -222,137 +225,16 @@ namespace Bacteriophage
 
                     if (thisCel.TerraignInfo.BacteriaHeight > GlobalConstants.MinBacteriaFlow)
                     {
-                        float totalBacteriaPool = 0;
-
-                        if (thisCel.LowerTotalCels.Count > 0)
+                        foreach (Cel cel in thisCel.OrderedLowerBufferedCels())
                         {
-                            totalBacteriaPool += thisCel.TerraignInfo.BacteriaHeight;
-
-                            // Total up the pool
-                            foreach (Cel lowerTotalCel in thisCel.LowerTotalCels)
+                            if (thisCel.TerraignInfo.BacteriaHeight + thisCel.TerraignInfo.BufferBacteriaHeight > GlobalConstants.MinBacteriaFlow)
                             {
-                                if (thisCel.HigherCels.Contains(lowerTotalCel))
-                                    totalBacteriaPool += lowerTotalCel.TerraignInfo.BacteriaHeight + (lowerTotalCel.TerraignInfo.GroundHeight - thisCel.TerraignInfo.GroundHeight);
-                                else
-                                    totalBacteriaPool += lowerTotalCel.TerraignInfo.BacteriaHeight;
-                            }
-
-                            // If not enough to fill lower gournd heigh cels just split it up between ground cels and move on
-                            if (thisCel.LowerCels.Count > totalBacteriaPool)
-                            {
-                                float percentToKeep = (totalBacteriaPool / 100f) * GlobalConstants.BacteriaDumpKeepPercent;
-                                float dividedBacteria = (totalBacteriaPool - percentToKeep) / thisCel.LowerCels.Count;
-
-                                foreach (Cel lowerHeightCel in thisCel.LowerCels)
-                                {
-                                    lowerHeightCel.SetBid(dividedBacteria, dividedBacteria, thisCel);
-                                }
-
-                                thisCel.TerraignInfo.BufferBacteriaHeight = percentToKeep;
-                            }
-                            else
-                            {
-                                //if (thisCel.HigherCels.Count > 0)
-                                //{
-                                //    List<Cel> celsToPopulate = new List<Cel>();
-                                //    int neededHeight = GlobalConstants.MaxWorldHeight;
-
-                                //    foreach (Cel higherCel in thisCel.HigherCels)
-                                //    {
-                                //        if (higherCel.TerraignInfo.GroundHeight < neededHeight)
-                                //        {
-                                //            celsToPopulate.Clear();
-                                //            neededHeight = higherCel.TerraignInfo.GroundHeight - thisCel.TerraignInfo.GroundHeight;
-                                //            celsToPopulate.Add(higherCel);
-                                //        }
-                                //        else if (higherCel.TerraignInfo.GroundHeight == neededHeight)
-                                //            celsToPopulate.Add(higherCel);
-                                //    }
-
-                                //    if (thisCel.TerraignInfo.BacteriaHeight > (neededHeight + GlobalConstants.BacteriaJumpUpTheshold))
-                                //    {
-                                //        float bacteriaDelta = (thisCel.TerraignInfo.BacteriaHeight - neededHeight - GlobalConstants.BacteriaJumpUpTheshold) / (celsToPopulate.Count + 1);
-
-                                //        thisCel.TerraignInfo.BufferBacteriaHeight = neededHeight + bacteriaDelta + GlobalConstants.BacteriaJumpUpTheshold;
-
-                                //        foreach (Cel higherCelToPopulate in celsToPopulate)
-                                //        {
-                                //            higherCelToPopulate.SetBid(bacteriaDelta, thisCel);
-                                //        }
-
-                                //        continue;
-                                //    }
-                                //}
-
-                                totalBacteriaPool -= thisCel.LowerCels.Count;
-                                foreach (Cel lowerHeightCel in thisCel.LowerCels)
-                                {
-                                    //lowerHeightCel.TerraignInfo.BufferBacteriaHeight += 1;
-                                }
-
-                                bool useAllLower = true;
-                                float dividedBacteria = totalBacteriaPool / (thisCel.LowerTotalCels.Count + 1);
-                                int lowestStep = GlobalConstants.MaxWorldHeight;
-
-                                foreach (Cel higherCel in thisCel.HigherCels)
-                                {
-                                    if (thisCel.LowerTotalCels.Contains(higherCel) && higherCel.TerraignInfo.GroundHeight < lowestStep)
-                                    {
-                                        lowestStep = higherCel.TerraignInfo.GroundHeight - thisCel.TerraignInfo.GroundHeight;
-                                    }
-                                }
-
-                                if (dividedBacteria < (lowestStep + GlobalConstants.BacteriaJumpUpTheshold))
-                                {
-                                    useAllLower = false;
-                                    dividedBacteria = totalBacteriaPool / (thisCel.LowerTotalExcludeHigherCels.Count + 1);
-                                }
-
-                                if (useAllLower)
-                                {
-                                    foreach (Cel lowerCel in thisCel.LowerTotalCels)
-                                    {
-                                        if (thisCel.HigherCels.Contains(lowerCel))
-                                        {
-                                            lowerCel.SetBid(dividedBacteria - (lowerCel.TerraignInfo.GroundHeight - thisCel.TerraignInfo.GroundHeight), dividedBacteria, thisCel);
-                                        }
-                                        else if (!thisCel.LowerCels.Contains(lowerCel))
-                                        {
-                                            lowerCel.SetBid(dividedBacteria, dividedBacteria, thisCel);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    foreach (Cel lowerCel in thisCel.LowerTotalExcludeHigherCels)
-                                    {
-                                        if (!thisCel.LowerCels.Contains(lowerCel))
-                                        {
-                                            lowerCel.SetBid(dividedBacteria, dividedBacteria, thisCel);
-                                        }
-                                    }
-                                }
+                                ulong flowAmount = (thisCel.TerraignInfo.BacteriaHeight / 100) * GlobalConstants.BacteriaPercentFlowAmountPerTick;
+                                cel.TerraignInfo.BufferBacteriaHeight += flowAmount;
+                                thisCel.TerraignInfo.BufferBacteriaHeight -= flowAmount;
                             }
                         }
                     }
-                    else if (thisCel.LowerCels.Count > 0 && thisCel.TerraignInfo.BacteriaHeight < GlobalConstants.MinBacteriaFlow && thisCel.TerraignInfo.BacteriaHeight <= GlobalConstants.MaxBacteriaFlowBack)
-                    {
-                        float dividedBacteria = thisCel.TerraignInfo.BacteriaHeight / thisCel.LowerCels.Count;
-                        thisCel.TerraignInfo.BufferBacteriaHeight -= thisCel.TerraignInfo.BacteriaHeight;
-
-                        foreach (Cel lowerCel in thisCel.LowerCels)
-                        {
-                            lowerCel.TerraignInfo.BufferBacteriaHeight += dividedBacteria;
-                        }
-                    }
-                }
-            }
-
-            for (int x = 0; x < WidthResolution; x++)
-            {
-                for (int y = 0; y < HeightResolution; y++)
-                {
-                    Grid[x, y].CalculateBids();
                 }
             }
 

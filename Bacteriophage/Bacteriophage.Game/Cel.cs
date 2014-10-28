@@ -27,7 +27,7 @@ namespace Bacteriophage
         public Cel RightCel { get; set; }
 
         public Cel BiddingCel { get; private set; }
-        public float BiddingCelBacteriaBuffer { get; private set; }
+        public ulong BiddingCelBacteriaBuffer { get; private set; }
 
         public List<Cel> LowerCels { get; set; }
         public List<Cel> HigherCels { get; set; }
@@ -115,7 +115,7 @@ namespace Bacteriophage
             if (TerraignInfo.BacteriaHeight > 0)
                 TerraignColour = new Color(0f, TerraignInfo.TotalHeight / 10f, 0f);
             else
-                TerraignColour = new Color(TerraignInfo.GroundHeight / 10f, TerraignInfo.TotalHeight / 10f, TerraignInfo.GroundHeight / 10f);
+                TerraignColour = new Color(TerraignInfo.GroundHeight / 10f, TerraignInfo.TotalHeight / GlobalConstants.MaxBacteria, TerraignInfo.GroundHeight / 10f);
         }
 
         public int CellBorderCount()
@@ -130,38 +130,14 @@ namespace Bacteriophage
             return count;
         }
 
-        public void SetBid(float bacteriaBuffer, float biddingCelBacteriaBuffer, Cel biddingCel)
+        public List<Cel> OrderedLowerBufferedCels()
         {
-            if (bacteriaBuffer > TerraignInfo.BufferBacteriaHeight)
-            {
-                BiddingCel = biddingCel;
-                TerraignInfo.BufferBacteriaHeight = bacteriaBuffer;
-            }
-            else if (bacteriaBuffer == TerraignInfo.BufferBacteriaHeight)
-            {
-                BiddingCel = Convert.ToBoolean(new Random().Next(0, 2)) ? biddingCel : BiddingCel;
-            }
+            var orderedCelList = from cel in LowerTotalCels
+                                 where TerraignInfo.BacteriaHeight > cel.TerraignInfo.BacteriaHeight + cel.TerraignInfo.BufferBacteriaHeight
+                                 orderby cel.TerraignInfo.TotalWithBuffer ascending
+                                 select cel;
 
-            BiddingCelBacteriaBuffer = biddingCelBacteriaBuffer;
-        }
-
-        public List<Cel> LowerBufferedCels()
-        {
-            List<Cel> bufferedCels = new List<Cel>();
-
-            if (UpCel != null && UpCel.TerraignInfo.BufferBacteriaHeight == 0 && UpCel.TerraignInfo.TotalHeight != TerraignInfo.TotalHeight)
-                bufferedCels.Add(UpCel); 
-
-            if (DownCel != null && DownCel.TerraignInfo.BufferBacteriaHeight == 0 && DownCel.TerraignInfo.TotalHeight != TerraignInfo.TotalHeight)
-                bufferedCels.Add(DownCel);
-
-            if (LeftCel != null && LeftCel.TerraignInfo.BufferBacteriaHeight == 0 && LeftCel.TerraignInfo.TotalHeight != TerraignInfo.TotalHeight)
-                bufferedCels.Add(LeftCel);
-
-            if (RightCel != null && RightCel.TerraignInfo.BufferBacteriaHeight == 0 && RightCel.TerraignInfo.TotalHeight != TerraignInfo.TotalHeight)
-                bufferedCels.Add(RightCel);
-
-            return bufferedCels;
+            return orderedCelList.ToList();
         }
 
         public void CalculateBids()
