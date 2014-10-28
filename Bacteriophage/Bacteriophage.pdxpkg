@@ -1,0 +1,74 @@
+!Package
+Id: ade4d8b5-bb87-4f0a-83f0-75be3bcde2c7
+Tags: []
+Meta:
+    Name: Bacteriophage
+    Version: 1.0.0.0
+    Authors: []
+    Owners: []
+    RootNamespace: Bacteriophage
+    Dependencies:
+        -   Name: Paradox
+            Version: 1.0.0-beta01
+LocalDependencies: []
+Profiles:
+    -   Name: Shared
+        Platform: Shared
+        InheritProfiles: []
+        AssetFolders:
+            -   Path: Assets/Shared
+                RawImports: []
+            -   Path: Bacteriophage.Game/Effects
+                RawImports: []
+        OutputGroupDirectories: {}
+        Properties:
+            Paradox.DisplayOrientation: !DisplayOrientation LandscapeRight
+        ProjectReferences:
+            -   Id: d9cda127-79d4-460d-bafe-2b1497095646
+                Location: Bacteriophage.Game/Bacteriophage.Game.csproj
+                Type: Library
+    -   Name: Windows
+        Platform: Windows
+        InheritProfiles: []
+        AssetFolders:
+            -   Path: Assets/Windows
+                RawImports: []
+        OutputGroupDirectories: {}
+        Properties:
+            Paradox.GraphicsPlatform: !GraphicsPlatform Direct3D11
+            Paradox.GraphicsProfile: !GraphicsProfile Level_9_1
+        ProjectReferences:
+            -   Id: a4b82034-65a6-41e0-9eab-76e80ad17a48
+                Location: Bacteriophage.Windows/Bacteriophage.Windows.csproj
+                Type: Executable
+    -   Name: WindowsStore
+        Platform: WindowsStore
+        InheritProfiles: []
+        AssetFolders:
+            -   Path: Assets/WindowsStore
+                RawImports: []
+        OutputGroupDirectories: {}
+        Properties:
+            Paradox.GraphicsPlatform: !GraphicsPlatform Direct3D11
+            Paradox.GraphicsProfile: !GraphicsProfile Level_9_1
+        ProjectReferences:
+            -   Id: f3d4b1ed-c2bf-4454-84f6-97f186b8b00e
+                Location: Bacteriophage.WindowsStore/Bacteriophage.WindowsStore.csproj
+                Type: Executable
+    -   Name: WindowsPhone
+        Platform: WindowsPhone
+        InheritProfiles: []
+        AssetFolders:
+            -   Path: Assets/WindowsPhone
+                RawImports: []
+        OutputGroupDirectories: {}
+        Properties:
+            Paradox.GraphicsPlatform: !GraphicsPlatform Direct3D11
+            Paradox.GraphicsProfile: !GraphicsProfile Level_9_1
+        ProjectReferences:
+            -   Id: a9b47f01-806a-4817-86f2-60a4ac8a0bf6
+                Location: Bacteriophage.WindowsPhone/Bacteriophage.WindowsPhone.csproj
+                Type: Executable
+ExplicitFolders: []
+Bundles: []
+TemplateFolders: []

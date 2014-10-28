@@ -1,0 +1,15 @@
+!SpriteGroup
+Id: 93eab623-17a5-41d8-a5e2-908c9448a7af
+Tags: []
+Images:
+    -   Source: ../../../../../Unity Projects/ImmunityGame/Assets/Resources/Sprites/grid_4.png
+        Name: green
+        TextureRegion:
+            X: 0
+            Y: 0
+            Width: 64
+            Height: 64
+        Center: {X: 0, Y: 0}
+ColorKeyColor: {R: 255, G: 0, B: 255, A: 255}
+Format: TrueColor
+Alpha: Explicit

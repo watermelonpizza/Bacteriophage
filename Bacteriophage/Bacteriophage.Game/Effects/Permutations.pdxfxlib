@@ -1,0 +1,10 @@
+!EffectLibrary
+Id: 63edbeaa-d5d9-4e9e-8185-d616722d165e
+BuildOrder: 1000
+Tags: []
+Permutations:
+    Keys:
+        Effect.Name: BacteriophageEffectMain
+        MaterialAsset.UseParameters: true
+        Mesh.UseParameters: true
+    Children: []

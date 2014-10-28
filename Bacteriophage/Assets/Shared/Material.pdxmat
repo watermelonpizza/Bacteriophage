@@ -1,0 +1,14 @@
+!MaterialAsset
+Id: 235852c1-ac08-414d-8b7c-a1cf92f61504
+BuildOrder: 250
+Tags: []
+Material:
+    Nodes:
+        MaterialTextureNode: !MaterialTextureNode
+            TextureReference: a908500e-ab1f-4e9c-bfa5-b075cdfeb951:grid_4
+            Scale: {X: 1, Y: 1}
+            Offset: {X: 0, Y: 0}
+    ColorNodes: {}
+    Parameters:
+        Capacity: 0
+        ~Items: {}

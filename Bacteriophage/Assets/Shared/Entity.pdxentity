@@ -1,0 +1,20 @@
+!Entity
+Id: 535ca766-98c1-465d-8953-8a2ada6b5966
+Tags: []
+Data:
+    Name: some_guy
+    Components:
+        SpriteComponent.Key: !SpriteComponentData
+            Color: {R: 0, G: 0, B: 0, A: 255}
+            SpriteEffect: None
+            SpriteGroupInternal: 93eab623-17a5-41d8-a5e2-908c9448a7af:green
+        TransformationComponent.Key: !TransformationComponentData
+            Children: []
+            Rotation:
+                W: 0
+                X: 0
+                Y: 0
+                Z: 0
+            Scaling: {X: 1, Y: 1, Z: 1}
+            Translation: {X: 0, Y: 0, Z: 0}
+            UseTRS: true
